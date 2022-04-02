@@ -23,6 +23,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines:0.19.2")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+    implementation("com.arkivanov.decompose:decompose:0.5.2")
+    implementation("com.arkivanov.decompose:extensions-compose-jetbrains:latest.release")
     //implementation("org.jetbrains.compose.material:material-icons-extended:${"1.1.1"}") // 30MB 大包
 }
 
@@ -70,21 +72,21 @@ compose.desktop {
             vendor = "Example vendor"
             licenseFile.set(project.file("LICENSE.txt"))
             windows {
+                upgradeUuid = "2dc6921b-521a-4c3a-9e9e-fe9488e56e14"
                 dirChooser = true
-                iconFile.set(project.file("icon.ico"))
-            }
-
-            /*
-            macOS {
-                iconFile.set(project.file("icon.icns"))
-            }
-            windows {
+                shortcut = true
+                msiPackageVersion = "0.1.0"
                 iconFile.set(project.file("icon.ico"))
             }
             linux {
-                iconFile.set(project.file("icon.png"))
+                shortcut = true
+                packageName = "test-composeplay2"
+                //iconFile.set(project.file("icon.png"))
             }
-            */
+            macOS {
+                //iconFile.set(project.file("icon.icns"))
+            }
+
 
         }
     }

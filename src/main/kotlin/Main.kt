@@ -1,67 +1,64 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the GNU Affero General Public License that can be found in the LICENSE file.
-import MaterialDesktopWindow.MaterialMenu
+//import kotlinx.coroutines.launch
+import MyTopMenuBar.MyMenu
+import MyTopMenuBar.MyMenuBar
+import MyTopMenuBar.MyMenuItem
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.window.WindowDraggableArea
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.window.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.delay
-//import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.awt.FileDialog
-import java.awt.TrayIcon
 import java.io.File
 import java.nio.charset.Charset
-import javax.swing.JMenuItem
-import javax.swing.JPanel
-import kotlin.system.exitProcess
 
 
 const val SERVER_URL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
 val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
-val Teal200   = Color(0xFF03DAC5)
-val Teal700   = Color(0xFF00796B)
+val Teal200 = Color(0xFF03DAC5)
+val Teal700 = Color(0xFF00796B)
 
-infix fun<T> Boolean.thenDo(x :T) :T?  = if(this) {
-        x
-    } else {
-        null
-    }
-
+infix fun <T> Boolean.thenDo(x: T): T? = if (this) {
+    x
+} else {
+    null
+}
 
 
 @Composable
 fun ImgCard() {
-    var img :Painter? by remember { mutableStateOf(null) }
-    fun painterStorage(path :String) :BitmapPainter = File(path).inputStream().buffered().use { BitmapPainter(loadImageBitmap(it)) }
+    var img: Painter? by remember { mutableStateOf(null) }
+    fun painterStorage(path: String): BitmapPainter = File(path).inputStream().buffered().use { BitmapPainter(loadImageBitmap(it)) }
 
     CardColumn {
         AnimatedVisibility(img != null) {
@@ -75,13 +72,13 @@ fun ImgCard() {
             }
         }
         Button(onClick = {
-            img = FileDialog(ComposeWindow(),"选择图片").apply {
+            img = FileDialog(ComposeWindow(), "选择图片").apply {
                 mode = FileDialog.LOAD
                 file = "*.jpg;*.jpeg;*.png;*.gif;*.bmp"
                 //filenameFilter = FilenameFilter { _, name -> name.matches(Regex("\\S+.(jpg|png|jpeg|gif)]"))  }
                 isVisible = true
             }.run {
-                if(directory != null && file != null)
+                if (directory != null && file != null)
                     painterStorage(directory + file)
                 else
                     null
@@ -89,7 +86,7 @@ fun ImgCard() {
         }) {
             Text("File Picker")
         }
-        Button(onClick = {img = null}) {Text("Clear")}
+        Button(onClick = { img = null }) { Text("Clear") }
     }
 }
 
@@ -99,7 +96,7 @@ fun <T> ImgCardAsync() {
         value = null
     }
     CardColumn {
-        when(img) {
+        when (img) {
             null -> {}
             else -> {}
         }
@@ -126,7 +123,7 @@ useEffect(() => {}, []);
 
 @Composable
 fun JvmInfoCard() {
-    val getInfo :(String)->String = { System.getProperty(it) }
+    val getInfo: (String) -> String = { System.getProperty(it) }
 
     Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Column(
@@ -143,6 +140,7 @@ fun JvmInfoCard() {
 
 }
 
+/*
 object SysTrayIconImg : Painter() {
     override val intrinsicSize = Size(256f, 256f)
 
@@ -150,6 +148,7 @@ object SysTrayIconImg : Painter() {
         drawOval(Color(0xFFFFA500))
     }
 }
+ */
 
 @Composable
 fun TimerCard() {
@@ -157,7 +156,7 @@ fun TimerCard() {
 
     LaunchedEffect(time) {
         delay(1000L)
-        time = (time+1) % 60
+        time = (time + 1) % 60
     }
 
     CardColumn {
@@ -221,16 +220,35 @@ fun DateTimeCard() {
 
 @Composable
 fun MaterialIconsGalleryCard() {
+    var isWindowVisible = mutableStateOf(false)
+    var testString = mutableStateOf("Hello")
     CardColumn {
-        Icon(Icons.Default.Add, null)
-        Icon(Icons.Default.Home, null)
-        Icon(Icons.Default.Close, null)
-        Icon(Icons.Default.Search, null)
-        Icon(Icons.Default.MoreVert, null)
-        Icon(Icons.Default.Notifications, null)
-        Icon(Icons.Default.LocationOn, null)
-        Icon(Icons.Default.Lock, null)
-        Icon(Icons.Default.CheckCircle, null)
+        OutlinedTextField(label = { Text("testString") }, value = testString.value, onValueChange = { testString.value = it });
+        Button(onClick = {
+            isWindowVisible.value = true
+        }) {
+            Text("新窗口")
+        }
+
+        InputWindowTest(isWindowVisible, testString)
+    }
+}
+
+@Composable
+fun InputWindowTest(isWindowVisible: MutableState<Boolean>, testString: MutableState<String>) {
+    var isWindowVisible by remember { isWindowVisible }
+    var testString by remember { testString }
+
+    MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(Teal700, Teal200, Purple200) else lightColors(Teal700, Teal200, Purple200)) {
+        Window(visible = isWindowVisible, onCloseRequest = { isWindowVisible = false }, title = "composePlay") {
+            CardColumn {
+                OutlinedTextField(label = { Text("testString") }, value = testString, onValueChange = { testString = it });
+                Icon(Icons.Default.Notifications, null)
+                Icon(Icons.Default.LocationOn, null)
+                Icon(Icons.Default.Lock, null)
+                Icon(Icons.Default.CheckCircle, null)
+            }
+        }
     }
 }
 
@@ -335,31 +353,31 @@ fun AlertDialogCard() {
             }
 
             msgBoxOpen && Unit == AlertDialog(
-                    onDismissRequest = { msgBoxOpen = false },
-                    title = { Text("测试标题") },
-                    text = { Text("测试") },
-                    confirmButton = {
-                        TextButton(onClick = { msgBoxOpen = false }) {
-                            Text("确认")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { msgBoxOpen = false }) {
-                            Text("取消")
-                        }
+                onDismissRequest = { msgBoxOpen = false },
+                title = { Text("测试标题") },
+                text = { Text("测试") },
+                confirmButton = {
+                    TextButton(onClick = { msgBoxOpen = false }) {
+                        Text("确认")
                     }
-                )
+                },
+                dismissButton = {
+                    TextButton(onClick = { msgBoxOpen = false }) {
+                        Text("取消")
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
-fun ListCard(listData :List<String> = listOf("Kotlin","C/C++","JS")) {
+fun ListCard(listData: List<String> = listOf("Kotlin", "C/C++", "JS")) {
 
 }
 
 @Composable
-fun CardColumn(content : @Composable ()-> Unit) {
+fun CardColumn(content: @Composable () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             content()
@@ -367,7 +385,12 @@ fun CardColumn(content : @Composable ()-> Unit) {
     }
 }
 
+@Composable
+fun NavTest() {
+    NavigationRail {
 
+    }
+}
 
 //@OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -423,7 +446,7 @@ fun main() = application {
         menu = {
             Item(
                 "Show",
-                onClick = {windowState.isMinimized = false}
+                onClick = { windowState.isMinimized = false }
             )
             Item(
                 "退出",
@@ -434,7 +457,7 @@ fun main() = application {
                 onClick = { trayState.sendNotification(notificationState) }
             )
         },
-        onAction = {windowState.isMinimized = false}
+        onAction = { windowState.isMinimized = false }
     )
 
 
@@ -458,7 +481,43 @@ fun main() = application {
                 scaffoldState = scaffoldState,
                 modifier = Modifier.clip(RoundedCornerShape(5.dp)), //.border(BorderStroke(2.dp, MaterialTheme.colors.primary))
                 topBar = {
-                    TopAppBar(modifier = Modifier.height(32.dp)) {
+                    MyMenuBar("Jetpack Compose Demo", windowState) {
+                        MyMenu("文件") {
+                            MyMenuItem("新建") {
+                            }
+                            MyMenuItem("打开") {
+                                pagination = Pages.HOME
+                            }
+                            Divider()
+                            MyMenuItem("退出") {
+                                exitApplication()
+                            }
+                        }
+                        MyMenu("设置")
+                        {
+                            MyMenuItem("编辑") {
+                                pagination = Pages.ABOUT
+                            }
+                            MyMenuItem("首选项") {
+                            }
+                        }
+                        MyMenu("帮助")
+                        {
+                            MyMenuItem("帮助") {
+                                pagination = Pages.ABOUT
+                            }
+                            MyMenuItem("关于") {
+                                pagination = Pages.ABOUT
+                            }
+                            /*
+                            DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
+                                Text("关于")
+                            }
+                            */
+                        }
+
+                    }
+                    /*TopAppBar(modifier = Modifier.height(32.dp)) {
                         //val coroutineScope = rememberCoroutineScope()
                         WindowDraggableArea {
                             Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -468,8 +527,8 @@ fun main() = application {
                                         content = { Icon(Icons.Default.Home, null) }
                                     )
 
-                                    MaterialMenu("文件",) {
-                                        DropdownMenuItem(onClick = { collapse(); }) {
+                                    MyMaterialMenu("文件",) {
+                                        DropdownMenuItem(onClick = { collapse() }) {
                                             Text("新建")
                                         }
                                         DropdownMenuItem(onClick = { collapse(); pagination=Pages.HOME }) {
@@ -480,7 +539,7 @@ fun main() = application {
                                             Text("退出")
                                         }
                                     }
-                                    MaterialMenu("设置")
+                                    MyMaterialMenu("设置")
                                     {
                                         DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
                                             Text("编辑")
@@ -489,7 +548,7 @@ fun main() = application {
                                             Text("首选项")
                                         }
                                     }
-                                    MaterialMenu("帮助")
+                                    MyMaterialMenu("帮助")
                                     {
                                         DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
                                             Text("帮助")
@@ -498,8 +557,6 @@ fun main() = application {
                                             Text("关于")
                                         }
                                     }
-
-                                    // demo end
                                 }
 
                                 Text("Jetpack Compose Application", maxLines = 1)
@@ -523,9 +580,10 @@ fun main() = application {
                                 }
                             }
                         }
-                    }
+                    }*/
                 },
                 bottomBar = {
+                    // can alse use BottomNavigation
                     BottomAppBar(modifier = Modifier.height(18.dp)) {
                         Text(text = "Location: ${windowState.position} Size: ${windowState.size}")
                     }
@@ -537,7 +595,7 @@ fun main() = application {
                     }
                 }*/,
                 content = {
-                    when(pagination) {
+                    when (pagination) {
                         Pages.HOME -> AppPage()
                         Pages.ABOUT -> AboutPage()
                     }
