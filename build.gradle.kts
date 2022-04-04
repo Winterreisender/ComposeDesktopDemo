@@ -23,8 +23,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines:0.19.2")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
-    implementation("com.arkivanov.decompose:decompose:0.5.2")
-    implementation("com.arkivanov.decompose:extensions-compose-jetbrains:latest.release")
+    //implementation("com.arkivanov.decompose:decompose:0.5.2")
+    //implementation("com.arkivanov.decompose:extensions-compose-jetbrains:latest.release")
     //implementation("org.jetbrains.compose.material:material-icons-extended:${"1.1.1"}") // 30MB 大包
 }
 
