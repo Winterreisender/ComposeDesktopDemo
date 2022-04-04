@@ -1,6 +1,6 @@
 # Practice using Github Actions
 
-name: Gradle CI Windows
+name: Gradle CI Linux
 
 on:
     push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
     build:
-        runs-on: windows-latest
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
             - name: Setup Java JDK 17
