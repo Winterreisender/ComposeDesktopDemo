@@ -3,19 +3,19 @@
 import MyTopMenuBar.MyMenu
 import MyTopMenuBar.MyMenuBar
 import MyTopMenuBar.MyMenuItem
+import MyTopMenuBar.MyMenuToggle
+import MyTopMenuBar.MySubMenu
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.draw.clip
@@ -33,11 +33,15 @@ import androidx.compose.ui.window.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.awt.Desktop
 import java.awt.FileDialog
 import java.io.File
+import java.net.URI
+import java.net.URL
 import java.nio.charset.Charset
 
 
@@ -310,7 +314,7 @@ fun UselessFactCard() {
         url.httpGet().response { result ->
             result.fold(
                 { data -> info = Json.decodeFromString(data.toString(Charset.forName("utf-8"))); status = Status.OK; },
-                { err -> status = Status.Error }
+                { err -> status = Status.Error; println(err) }
             )
         }
     }
@@ -371,8 +375,29 @@ fun AlertDialogCard() {
     }
 }
 
+
+
+
 @Composable
-fun ListCard(listData: List<String> = listOf("Kotlin", "C/C++", "JS")) {
+fun ListCard() {
+    val listData = remember {  mutableStateListOf<String>("Kotlin", "C/C++", "JS") }
+
+    LaunchedEffect(Unit) {
+        flow {
+            for (i in 1..30) {
+                delay(1000) // 假装我们在这里做了一些有用的事情
+                emit(i) // 发送下一个值
+            } }.collect {
+                listData.add("$it")
+            }
+    }
+
+
+    CardColumn {
+        listData.forEachIndexed { index, s ->
+            Text("$index: $s")
+        }
+    }
 
 }
 
@@ -421,6 +446,7 @@ fun testInternetAccess(testUrl: String = "http://wifi.vivo.com.cn/generate_204",
         callback(response.statusCode == 204)
     }
 }
+
 
 @Composable
 fun AboutPage() {
@@ -509,11 +535,41 @@ fun main() = application {
                             MyMenuItem("关于") {
                                 pagination = Pages.ABOUT
                             }
-                            /*
-                            DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
-                                Text("关于")
+
+                            var toggledTest by remember { mutableStateOf(false) }
+                            MyMenuToggle("测试",toggledTest) {
+                                println(it)
+                                toggledTest = !toggledTest
                             }
-                            */
+
+                            MySubMenu("展开") {
+                                MyMenuItem("1") {
+                                    println("Hello")
+                                }
+                                MySubMenu("展开") {
+                                    MyMenuItem("3") {
+                                        println("Hello")
+                                    }
+                                    MyMenuItem("4") {
+                                        println("Hello")
+                                    }
+                                }
+                                MyMenuItem("3") {
+                                    println("Hello")
+                                }
+                                MyMenuItem("4") {
+                                    println("Hello")
+                                }
+                            }
+
+                            // custom menu item
+                            DropdownMenuItem(onClick = { collapseMenu(); Desktop.getDesktop().browse(URI("https://github.com/JetBrains/compose-jb/")) },modifier = Modifier.height(28.dp)) {
+                                Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                    Text("官网")
+                                    Icon(Icons.Default.Share,null, modifier = Modifier.fillMaxHeight())
+                                }
+                            }
+
                         }
 
                     }
