@@ -60,7 +60,7 @@ tasks {
 compose.desktop {
     application {
         mainClass = "MainKt"
-        jvmArgs += listOf("-Xmx512m","-Xms32m","-XX:+UseZGC")//,"-Dfile.encoding=gbk")
+        jvmArgs += listOf()//"-Xmx512m","-Xms32m","-XX:+UseZGC","-Dfile.encoding=gbk")
         args += listOf()
         description = "Compose Example App"
         nativeDistributions {

@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.window.*
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 
@@ -48,16 +49,19 @@ object MyTopMenuBar {
     fun WindowScope.MyMenuBar(
         title: String,
         windowState: WindowState,
-        //scaffoldState :ScaffoldState,
+        scaffoldState :ScaffoldState? = null,
         modifier: Modifier = Modifier.height(32.dp),
         menus: @Composable () -> Unit = {}
     ) = TopAppBar(modifier = modifier) {
-        //val coroutineScope = rememberCoroutineScope()
+        val coroutineScope = rememberCoroutineScope()
         WindowDraggableArea {
             Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
-                        onClick = {/*coroutineScope.launch {scaffoldState.drawerState.open()}*/
+                        onClick = {
+                            scaffoldState?.let {
+                                coroutineScope.launch { it.drawerState.open() }
+                            }
                         },
                         content = { Icon(Icons.Default.Menu, null) }
                     )

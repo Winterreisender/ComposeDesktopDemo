@@ -19,21 +19,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -41,7 +44,6 @@ import java.awt.Desktop
 import java.awt.FileDialog
 import java.io.File
 import java.net.URI
-import java.net.URL
 import java.nio.charset.Charset
 
 
@@ -64,7 +66,7 @@ fun ImgCard() {
     var img: Painter? by remember { mutableStateOf(null) }
     fun painterStorage(path: String): BitmapPainter = File(path).inputStream().buffered().use { BitmapPainter(loadImageBitmap(it)) }
 
-    CardColumn {
+    CardColumn("图片查看器") {
         AnimatedVisibility(img != null) {
             when (img) {
                 null -> Text("No image available")
@@ -323,8 +325,11 @@ fun UselessFactCard() {
         updateUselessFact()
     }
 
-    Card(modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+    Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()) {
+            Text("冷知识", fontSize = 1.7.em)
+            Divider()
+            Spacer(Modifier.padding(4.dp))
             when (status) {
                 Status.Fetching -> {
                     CircularProgressIndicator()
@@ -402,9 +407,15 @@ fun ListCard() {
 }
 
 @Composable
-fun CardColumn(content: @Composable () -> Unit) {
+fun CardColumn(text: String? = null,content: @Composable () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()) {
+            if(text != null) {
+                Text(text, fontSize = 1.7.em)
+                Divider()
+                Spacer(Modifier.padding(4.dp))
+            }
+
             content()
         }
     }
@@ -501,13 +512,13 @@ fun main() = application {
         MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(Teal700, Teal200, Purple200) else lightColors(Teal700, Teal200, Purple200)) {
             val scaffoldState = rememberScaffoldState()
             var pagination by remember { mutableStateOf(Pages.HOME) }
-            //val scope = rememberCoroutineScope()
+            val coroutineScope = rememberCoroutineScope()
 
             Scaffold(
                 scaffoldState = scaffoldState,
                 modifier = Modifier.clip(RoundedCornerShape(5.dp)), //.border(BorderStroke(2.dp, MaterialTheme.colors.primary))
                 topBar = {
-                    MyMenuBar("Jetpack Compose Demo", windowState) {
+                    MyMenuBar("Jetpack Compose Demo", windowState, scaffoldState) {
                         MyMenu("文件") {
                             MyMenuItem("新建") {
                             }
@@ -638,18 +649,24 @@ fun main() = application {
                         }
                     }*/
                 },
+
                 bottomBar = {
-                    // can alse use BottomNavigation
+                    // can also use BottomNavigation
                     BottomAppBar(modifier = Modifier.height(18.dp)) {
                         Text(text = "Location: ${windowState.position} Size: ${windowState.size}")
                     }
                 },
-                drawerContent = null/*{
-                    CardColumn {
-                        Text(text = "主页" ,modifier = Modifier.padding(6.dp).clickable { pagination = Pages.HOME; scope.launch { scaffoldState.drawerState.close() } }, fontSize = 1.em)
-                        Text(text = "关于", modifier = Modifier.padding(6.dp).clickable { pagination = Pages.ABOUT; scope.launch { scaffoldState.drawerState.close() } }, fontSize = 1.em)
+                /*drawerShape = object : Shape {
+                    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline =
+                        Outline.Rectangle(Rect(0f,32f,256f, 300f))
+
+                },*/
+                drawerContent = {
+                    Column(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+                        Text(text = "主页" ,modifier = Modifier.clickable { pagination = Pages.HOME; coroutineScope.launch { scaffoldState.drawerState.close() } }, fontSize = 1.em)
+                        Text(text = "关于", modifier = Modifier.clickable { pagination = Pages.ABOUT; coroutineScope.launch { scaffoldState.drawerState.close() } }, fontSize = 1.em)
                     }
-                }*/,
+                },
                 content = {
                     when (pagination) {
                         Pages.HOME -> AppPage()
