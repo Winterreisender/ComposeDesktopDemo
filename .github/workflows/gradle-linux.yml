@@ -31,9 +31,16 @@ jobs:
               with:
                   arguments: packageUberJarForCurrentOS
 
+            - name: packageDeb with Gradle
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: packageDeb
 
             - name: Copy Jars to Staging
               run: mkdir staging && cp -r build/compose/jars/*.jar staging/
+
+            - name: Copy Debs to Staging
+              run: cp -r build/compose/binaries/main/deb/*.deb staging/
 
             - name: Upload
               uses: actions/upload-artifact@v2

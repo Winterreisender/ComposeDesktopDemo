@@ -18,15 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.loadImageBitmap
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -47,6 +43,7 @@ import java.io.File
 import java.net.URI
 import java.nio.charset.Charset
 import javax.swing.JOptionPane
+import javax.swing.UIManager
 
 
 val ThirdColor = Color(0xFFBB86FC)
@@ -299,12 +296,12 @@ fun InputWindowTest(isWindowVisible: MutableState<Boolean>, testString: MutableS
 
 @Composable
 fun FuelInternetCard() {
-    val SERVER_URL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
+    val serverURL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
     val (resp, setResp) = remember { mutableStateOf("Hello, World!") }
 
     CardColumn("网络") {
             Button(onClick = {
-                Fuel.get(SERVER_URL)
+                Fuel.get(serverURL)
                     .response { result ->
                         result.fold(
                             { data -> setResp(data.toString(Charset.forName("utf-8"))); },
@@ -421,8 +418,6 @@ fun AlertDialogCard() {
 }
 
 
-
-
 @Composable
 fun ListCard() {
     val listData = remember {  mutableStateListOf<String>("Kotlin", "C/C++", "JS") }
@@ -438,13 +433,11 @@ fun ListCard() {
         }
     }
 
-
     CardColumn("Kotlin Flow") {
         listData.forEachIndexed { index, s ->
             Text("$index: $s")
         }
     }
-
 }
 
 @Composable
@@ -485,7 +478,6 @@ fun AppPage() {
         ColorChooserCard()
         ImgCard()
         UselessFactCard()
-        //DateTimeCard()
         TimerCard()
         FuelInternetCard()
         AlertDialogCard()
@@ -511,7 +503,7 @@ enum class Pages {
 }
 
 
-fun main() = application {
+fun mainApp() = application {
     val windowState = rememberWindowState(size = DpSize(1024.dp, 768.dp), position = WindowPosition(100.dp, 40.dp))
     val trayState = rememberTrayState()
     val notificationState = rememberNotification("title", "message", Notification.Type.Info)
@@ -721,5 +713,9 @@ fun main() = application {
     }
 }
 
+fun main(args :Array<String>) {
+    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
+    mainApp()
+}
 
 
