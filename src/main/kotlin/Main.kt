@@ -1,5 +1,4 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the GNU Affero General Public License that can be found in the LICENSE file.
-//import kotlinx.coroutines.launch
 import MyTopMenuBar.MyMenu
 import MyTopMenuBar.MyMenuBar
 import MyTopMenuBar.MyMenuItem
@@ -19,15 +18,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.*
@@ -45,14 +46,12 @@ import java.awt.FileDialog
 import java.io.File
 import java.net.URI
 import java.nio.charset.Charset
+import javax.swing.JOptionPane
 
 
-const val SERVER_URL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-val Teal700 = Color(0xFF00796B)
+val ThirdColor = Color(0xFFBB86FC)
+val SecondaryColor = Color(0xFF03DAC5)
+val MainColor = Color(0xFF1e88a8) // 花浅葱
 
 infix fun <T> Boolean.thenDo(x: T): T? = if (this) {
     x
@@ -60,6 +59,43 @@ infix fun <T> Boolean.thenDo(x: T): T? = if (this) {
     null
 }
 
+
+@Composable
+fun ColorChooserCard() {
+    val defaultColors = mapOf<String, Color>(
+        "枫叶红" to Color(0xFFc21f30),
+        "李紫" to Color(0xFF2b1216),
+        "青葱" to Color(0xff00a3af)
+    )
+
+    var colour by remember { mutableStateOf(defaultColors.entries.first().toPair()) }
+
+    CardColumn("颜色选择") {
+        Canvas(
+            modifier = Modifier.size(100.dp).clip(RoundedCornerShape(10.dp)),
+            onDraw = {
+                drawRect(color = colour.second)
+            }
+        )
+        //Box(Modifier.size(100.dp).background(colour.second))
+        defaultColors.forEach { (k, v) ->
+            Row(modifier = Modifier.fillMaxHeight(),verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(selected = k == colour.first,{colour= Pair(k,v) }, colors = RadioButtonDefaults.colors(v))
+                Text(buildAnnotatedString {
+                    pushStyle(SpanStyle(
+                        color = v,
+                        fontSize = 16.sp,
+                        fontStyle = FontStyle.Normal
+                    ))
+                    append(k)
+                    pop()
+                },Modifier.clickable { colour = Pair(k,v) })
+            }
+        }
+    }
+
+
+}
 
 @Composable
 fun ImgCard() {
@@ -165,7 +201,7 @@ fun TimerCard() {
         time = (time + 1) % 60
     }
 
-    CardColumn {
+    CardColumn("计时器") {
         Text("$time")
         Button(onClick = { time = 0 }) {
             Text("Reset")
@@ -245,14 +281,17 @@ fun InputWindowTest(isWindowVisible: MutableState<Boolean>, testString: MutableS
     var isWindowVisible by remember { isWindowVisible }
     var testString by remember { testString }
 
-    MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(Teal700, Teal200, Purple200) else lightColors(Teal700, Teal200, Purple200)) {
+    MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(MainColor, SecondaryColor, ThirdColor) else lightColors(MainColor, SecondaryColor, ThirdColor)) {
         Window(visible = isWindowVisible, onCloseRequest = { isWindowVisible = false }, title = "composePlay") {
             CardColumn {
                 OutlinedTextField(label = { Text("testString") }, value = testString, onValueChange = { testString = it });
-                Icon(Icons.Default.Notifications, null)
-                Icon(Icons.Default.LocationOn, null)
-                Icon(Icons.Default.Lock, null)
-                Icon(Icons.Default.CheckCircle, null)
+                Row {
+                    Icon(Icons.Default.Notifications, null)
+                    Icon(Icons.Default.LocationOn, null)
+                    Icon(Icons.Default.Lock, null)
+                    Icon(Icons.Default.CheckCircle, null)
+                }
+
             }
         }
     }
@@ -260,10 +299,10 @@ fun InputWindowTest(isWindowVisible: MutableState<Boolean>, testString: MutableS
 
 @Composable
 fun FuelInternetCard() {
+    val SERVER_URL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
     val (resp, setResp) = remember { mutableStateOf("Hello, World!") }
 
-    Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+    CardColumn("网络") {
             Button(onClick = {
                 Fuel.get(SERVER_URL)
                     .response { result ->
@@ -284,7 +323,6 @@ fun FuelInternetCard() {
             }
             Text(if (hasInternetAccess) "OK" else "No Access")
         }
-    }
 }
 
 
@@ -327,7 +365,7 @@ fun UselessFactCard() {
 
     Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()) {
-            Text("冷知识", fontSize = 1.7.em)
+            Text("网络请求", fontSize = 1.7.em)
             Divider()
             Spacer(Modifier.padding(4.dp))
             when (status) {
@@ -355,27 +393,29 @@ fun UselessFactCard() {
 fun AlertDialogCard() {
     var msgBoxOpen by remember { mutableStateOf(false) }
 
-    Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Button(onClick = { msgBoxOpen = true }) {
-                Text("MsgBox")
-            }
+    CardColumn("消息框") {
+        Button(onClick = { msgBoxOpen = true }) {
+            Text("Compose 消息框")
+        }
 
-            msgBoxOpen && Unit == AlertDialog(
-                onDismissRequest = { msgBoxOpen = false },
-                title = { Text("测试标题") },
-                text = { Text("测试") },
-                confirmButton = {
-                    TextButton(onClick = { msgBoxOpen = false }) {
-                        Text("确认")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { msgBoxOpen = false }) {
-                        Text("取消")
-                    }
+        msgBoxOpen && Unit == AlertDialog(
+            onDismissRequest = { msgBoxOpen = false },
+            title = { Text("测试标题") },
+            text = { Text("测试") },
+            confirmButton = {
+                TextButton(onClick = { msgBoxOpen = false }) {
+                    Text("确认")
                 }
-            )
+            },
+            dismissButton = {
+                TextButton(onClick = { msgBoxOpen = false }) {
+                    Text("取消")
+                }
+            }
+        )
+
+        Button({JOptionPane.showMessageDialog(ComposeWindow(),"Msg")}) {
+            Text("Swing 消息框")
         }
     }
 }
@@ -392,13 +432,14 @@ fun ListCard() {
             for (i in 1..30) {
                 delay(1000) // 假装我们在这里做了一些有用的事情
                 emit(i) // 发送下一个值
-            } }.collect {
-                listData.add("$it")
             }
+        }.collect {
+            listData.add("$it")
+        }
     }
 
 
-    CardColumn {
+    CardColumn("Kotlin Flow") {
         listData.forEachIndexed { index, s ->
             Text("$index: $s")
         }
@@ -441,7 +482,7 @@ fun AppPage() {
         })
 */
     {
-        MaterialIconsGalleryCard()
+        ColorChooserCard()
         ImgCard()
         UselessFactCard()
         //DateTimeCard()
@@ -509,7 +550,7 @@ fun main() = application {
         }
         */
 
-        MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(Teal700, Teal200, Purple200) else lightColors(Teal700, Teal200, Purple200)) {
+        MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(MainColor, SecondaryColor, ThirdColor) else lightColors(MainColor, SecondaryColor, ThirdColor)) {
             val scaffoldState = rememberScaffoldState()
             var pagination by remember { mutableStateOf(Pages.HOME) }
             val coroutineScope = rememberCoroutineScope()
@@ -521,6 +562,8 @@ fun main() = application {
                     MyMenuBar("Jetpack Compose Demo", windowState, scaffoldState) {
                         MyMenu("文件") {
                             MyMenuItem("新建") {
+                                collapseMenu()
+                                JOptionPane.showMessageDialog(ComposeWindow(),"Msg")
                             }
                             MyMenuItem("打开") {
                                 pagination = Pages.HOME
