@@ -2,6 +2,7 @@
 
 [![Gradle CI Windows](https://github.com/Winterreisender/ComposeDesktopDemo/actions/workflows/gradle-windows.yml/badge.svg)](https://github.com/Winterreisender/ComposeDesktopDemo/actions/workflows/gradle-windows.yml)
 [![Gradle CI Linux](https://github.com/Winterreisender/ComposeDesktopDemo/actions/workflows/gradle-linux.yml/badge.svg)](https://github.com/Winterreisender/ComposeDesktopDemo/actions/workflows/gradle-linux.yml)
+[![Gradle CI MacOS](https://github.com/Winterreisender/ComposeDesktopDemo/actions/workflows/gradle-macos.yml/badge.svg)](https://github.com/Winterreisender/ComposeDesktopDemo/actions/workflows/gradle-macos.yml)
 
 ![screenshot](screenshot.png)
 

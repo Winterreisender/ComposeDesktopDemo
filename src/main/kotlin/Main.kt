@@ -29,7 +29,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
-import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.httpGet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -50,6 +49,8 @@ val ThirdColor = Color(0xFFBB86FC)
 val SecondaryColor = Color(0xFF03DAC5)
 val MainColor = Color(0xFF1e88a8) // 花浅葱
 
+
+@Deprecated("", replaceWith = ReplaceWith("this && Unit==x"))
 infix fun <T> Boolean.thenDo(x: T): T? = if (this) {
     x
 } else {
@@ -259,10 +260,10 @@ fun DateTimeCard() {
 
 @Composable
 fun MaterialIconsGalleryCard() {
-    var isWindowVisible = mutableStateOf(false)
-    var testString = mutableStateOf("Hello")
+    val isWindowVisible = mutableStateOf(false)
+    val testString = mutableStateOf("Hello")
     CardColumn {
-        OutlinedTextField(label = { Text("testString") }, value = testString.value, onValueChange = { testString.value = it });
+        OutlinedTextField(label = { Text("testString") }, value = testString.value, onValueChange = { testString.value = it })
         Button(onClick = {
             isWindowVisible.value = true
         }) {
@@ -281,7 +282,7 @@ fun InputWindowTest(isWindowVisible: MutableState<Boolean>, testString: MutableS
     MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors(MainColor, SecondaryColor, ThirdColor) else lightColors(MainColor, SecondaryColor, ThirdColor)) {
         Window(visible = isWindowVisible, onCloseRequest = { isWindowVisible = false }, title = "composePlay") {
             CardColumn {
-                OutlinedTextField(label = { Text("testString") }, value = testString, onValueChange = { testString = it });
+                OutlinedTextField(label = { Text("testString") }, value = testString, onValueChange = { testString = it })
                 Row {
                     Icon(Icons.Default.Notifications, null)
                     Icon(Icons.Default.LocationOn, null)
@@ -296,10 +297,11 @@ fun InputWindowTest(isWindowVisible: MutableState<Boolean>, testString: MutableS
 
 @Composable
 fun FuelInternetCard() {
-    val serverURL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
-    val (resp, setResp) = remember { mutableStateOf("Hello, World!") }
+    //val serverURL = "http://39.105.184.209:81/api/storage?name=sdd&password=nitingxiua"
+    //val (resp, setResp) = remember { mutableStateOf("Hello, World!") }
 
     CardColumn("网络") {
+            /*
             Button(onClick = {
                 Fuel.get(serverURL)
                     .response { result ->
@@ -313,7 +315,7 @@ fun FuelInternetCard() {
                 Text("Fuel Get")
             }
             Text(resp)
-
+            */
             val (hasInternetAccess, setHasInternetAccess) = remember { mutableStateOf(false) }
             Button(onClick = { testInternetAccess { setHasInternetAccess(it) } }) {
                 Text("测试互联网连接")
@@ -420,7 +422,7 @@ fun AlertDialogCard() {
 
 @Composable
 fun ListCard() {
-    val listData = remember {  mutableStateListOf<String>("Kotlin", "C/C++", "JS") }
+    val listData = remember {  mutableStateListOf("Kotlin", "C/C++", "JS") }
 
     LaunchedEffect(Unit) {
         flow {
@@ -452,13 +454,6 @@ fun CardColumn(text: String? = null,content: @Composable () -> Unit) {
 
             content()
         }
-    }
-}
-
-@Composable
-fun NavTest() {
-    NavigationRail {
-
     }
 }
 
@@ -703,9 +698,25 @@ fun mainApp() = application {
                     }
                 },
                 content = {
-                    when (pagination) {
-                        Pages.HOME -> AppPage()
-                        Pages.ABOUT -> AboutPage()
+                    Row {
+                        Box(Modifier.fillMaxHeight().width(32.dp).background(MainColor)) { //侧边栏
+                            Column(Modifier.fillMaxSize(),verticalArrangement = Arrangement.SpaceBetween) {
+                                Column {
+                                    Icon(Icons.Default.AccountBox, null)
+                                    Icon(Icons.Default.AccountBox, null)
+                                    Icon(Icons.Default.AccountBox, null)
+                                }
+
+                                Column {
+                                    Icon(Icons.Default.ExitToApp, null)
+                                }
+                            }
+                        }
+
+                        when (pagination) {
+                            Pages.HOME -> AppPage()
+                            Pages.ABOUT -> AboutPage()
+                        }
                     }
                 }
             )
