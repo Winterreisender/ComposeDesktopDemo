@@ -52,7 +52,7 @@ object MTopMenuBar {
         modifier: Modifier = Modifier.height(32.dp),
         menus: @Composable () -> Unit = {}
     ) = TopAppBar(modifier = modifier) {
-        val coroutineScope = rememberCoroutineScope()
+        //val coroutineScope = rememberCoroutineScope()
         WindowDraggableArea {
             Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
@@ -61,7 +61,7 @@ object MTopMenuBar {
                             /*scaffoldState?.let {
                                 coroutineScope.launch { it.drawerState.open() }
                             }*/
-                            onIconClicked();
+                            onIconClicked()
                         },
                         content = { Icon(Icons.Default.Menu, null) }
                     )
@@ -103,7 +103,7 @@ object MTopMenuBar {
                 ) {
                 object : MMenuScope, ColumnScope by this { // 委托 GREAT! C++ 可用using
                     override fun collapseMenu() {
-                        menuExpanded = false;
+                        menuExpanded = false
                     }
                 }.dropdownMenuItems()
             }
@@ -138,7 +138,7 @@ object MTopMenuBar {
         fun collapseMenu()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    //@OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun MMenuScope.MSubMenu(text: String, dropdownMenuItems: @Composable MSubmenuScope.() -> Unit) {
         var menuExpanded by remember { mutableStateOf(false) }
@@ -155,7 +155,7 @@ object MTopMenuBar {
                     ) {
                     object : MSubmenuScope, RowScope by this@Row {
                         override fun collapseMenu() {
-                            this@MSubMenu.collapseMenu();
+                            this@MSubMenu.collapseMenu()
                         }
                     }.dropdownMenuItems()
                 }
@@ -163,7 +163,7 @@ object MTopMenuBar {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    //@OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun MSubmenuScope.MSubMenu(text: String, dropdownMenuItems: @Composable MSubmenuScope.() -> Unit) {
         var menuExpanded by remember { mutableStateOf(false) }
@@ -180,7 +180,7 @@ object MTopMenuBar {
                 ) {
                     object : MSubmenuScope, RowScope by this@Row {
                         override fun collapseMenu() {
-                            this@MSubMenu.collapseMenu();
+                            this@MSubMenu.collapseMenu()
                         }
                     }.dropdownMenuItems()
                 }
