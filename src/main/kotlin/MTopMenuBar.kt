@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.window.*
-import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 
@@ -23,15 +22,15 @@ import kotlin.system.exitProcess
 * ```kt
 * Scaffold(
 *     topBar = {
-*         MyMenuBar("Jetpack Compose Demo", windowState) {
-*             MyMenu("文件") {
-*                 MyMenuItem("新建") {
+*         MMenuBar("Jetpack Compose Demo", windowState) {
+*             MMenu("文件") {
+*                 MMenuItem("新建") {
 *             }
-*             MyMenuItem("打开") {
+*             MMenuItem("打开") {
 *                 pagination = Pages.HOME
 *             }
 *             Divider()
-*             MyMenuItem("退出") {
+*             MMenuItem("退出") {
 *                exitApplication()
 *             }
 *         }
@@ -44,12 +43,12 @@ import kotlin.system.exitProcess
  */
 
 
-object MyTopMenuBar {
+object MTopMenuBar {
     @Composable
-    fun WindowScope.MyMenuBar(
+    fun WindowScope.MMenuBar(
         title: String,
         windowState: WindowState,
-        scaffoldState :ScaffoldState? = null,
+        onIconClicked: ()->Unit = {},
         modifier: Modifier = Modifier.height(32.dp),
         menus: @Composable () -> Unit = {}
     ) = TopAppBar(modifier = modifier) {
@@ -59,9 +58,10 @@ object MyTopMenuBar {
                 Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = {
-                            scaffoldState?.let {
+                            /*scaffoldState?.let {
                                 coroutineScope.launch { it.drawerState.open() }
-                            }
+                            }*/
+                            onIconClicked();
                         },
                         content = { Icon(Icons.Default.Menu, null) }
                     )
@@ -88,20 +88,20 @@ object MyTopMenuBar {
         }
     }
 
-    interface MyMenuScope : ColumnScope {
+    interface MMenuScope : ColumnScope {
         // 关闭Menu
         fun collapseMenu()
     }
 
     @Composable
-    fun MyMenu(text: String, dropdownMenuItems: @Composable MyMenuScope.() -> Unit) {
+    fun MMenu(text: String, dropdownMenuItems: @Composable MMenuScope.() -> Unit) {
         var menuExpanded by remember { mutableStateOf(false) }
         Column {
             Text(text, modifier = Modifier.padding(6.dp, 0.dp).clickable { menuExpanded = true; }, maxLines = 1, fontSize = 1.em)
             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, focusable = true,
                 //modifier = Modifier.onPointerEvent(PointerEventType.Exit) { menuExpanded = false }
                 ) {
-                object : MyMenuScope, ColumnScope by this { // 委托 GREAT! C++ 可用using
+                object : MMenuScope, ColumnScope by this { // 委托 GREAT! C++ 可用using
                     override fun collapseMenu() {
                         menuExpanded = false;
                     }
@@ -111,7 +111,7 @@ object MyTopMenuBar {
     }
 
     @Composable
-    fun MyMenuScope.MyMenuItem(text: String, onClick: () -> Unit) =
+    fun MMenuScope.MMenuItem(text: String, onClick: () -> Unit) =
         DropdownMenuItem(
             onClick = { onClick(); collapseMenu() },
             modifier = Modifier.height(28.dp)
@@ -120,7 +120,7 @@ object MyTopMenuBar {
         }
 
     @Composable
-    fun MyMenuScope.MyMenuToggle(text: String, checked :Boolean, onClick: (Boolean) -> Unit) =
+    fun MMenuScope.MMenuToggle(text: String, checked :Boolean, onClick: (Boolean) -> Unit) =
         DropdownMenuItem(
             onClick = {  },
             modifier = Modifier.height(28.dp)
@@ -133,14 +133,14 @@ object MyTopMenuBar {
         }
 
 
-    interface MySubmenuScope : RowScope {
+    interface MSubmenuScope : RowScope {
         // 关闭Menu
         fun collapseMenu()
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    fun MyMenuScope.MySubMenu(text: String, dropdownMenuItems: @Composable MySubmenuScope.() -> Unit) {
+    fun MMenuScope.MSubMenu(text: String, dropdownMenuItems: @Composable MSubmenuScope.() -> Unit) {
         var menuExpanded by remember { mutableStateOf(false) }
         DropdownMenuItem(onClick = { menuExpanded = true },modifier = Modifier.height(28.dp)
             //.onPointerEvent(PointerEventType.Enter) { menuExpanded = true }
@@ -153,9 +153,9 @@ object MyTopMenuBar {
                 DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, focusable = true,offset = DpOffset(10.dp, (-10).dp)
                     //modifier = Modifier.onPointerEvent(PointerEventType.Exit) { menuExpanded = false }
                     ) {
-                    object : MySubmenuScope, RowScope by this@Row {
+                    object : MSubmenuScope, RowScope by this@Row {
                         override fun collapseMenu() {
-                            this@MySubMenu.collapseMenu();
+                            this@MSubMenu.collapseMenu();
                         }
                     }.dropdownMenuItems()
                 }
@@ -165,7 +165,7 @@ object MyTopMenuBar {
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    fun MySubmenuScope.MySubMenu(text: String, dropdownMenuItems: @Composable MySubmenuScope.() -> Unit) {
+    fun MSubmenuScope.MSubMenu(text: String, dropdownMenuItems: @Composable MSubmenuScope.() -> Unit) {
         var menuExpanded by remember { mutableStateOf(false) }
         DropdownMenuItem(onClick = { menuExpanded = true },modifier = Modifier.height(28.dp)
             //.onPointerEvent(PointerEventType.Enter) { menuExpanded = true }
@@ -178,9 +178,9 @@ object MyTopMenuBar {
                 DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }, focusable = true, offset = DpOffset(10.dp, (-10).dp)
                     //modifier = Modifier.onPointerEvent(PointerEventType.Exit) { menuExpanded = false }
                 ) {
-                    object : MySubmenuScope, RowScope by this@Row {
+                    object : MSubmenuScope, RowScope by this@Row {
                         override fun collapseMenu() {
-                            this@MySubMenu.collapseMenu();
+                            this@MSubMenu.collapseMenu();
                         }
                     }.dropdownMenuItems()
                 }
@@ -189,7 +189,7 @@ object MyTopMenuBar {
     }
 
     @Composable
-    fun MySubmenuScope.MyMenuItem(text: String, onClick: () -> Unit) =
+    fun MSubmenuScope.MMenuItem(text: String, onClick: () -> Unit) =
         DropdownMenuItem(
             onClick = { onClick(); collapseMenu() },
             modifier = Modifier.height(28.dp)

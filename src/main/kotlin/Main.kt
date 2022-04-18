@@ -1,9 +1,9 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the GNU Affero General Public License that can be found in the LICENSE file.
-import MyTopMenuBar.MyMenu
-import MyTopMenuBar.MyMenuBar
-import MyTopMenuBar.MyMenuItem
-import MyTopMenuBar.MyMenuToggle
-import MyTopMenuBar.MySubMenu
+import MTopMenuBar.MMenu
+import MTopMenuBar.MMenuBar
+import MTopMenuBar.MMenuItem
+import MTopMenuBar.MMenuToggle
+import MTopMenuBar.MSubMenu
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.desktop.ui.tooling.preview.Preview
@@ -335,7 +335,7 @@ data class UselessFactJsonModel(
     val text: String
 )
 
-enum class Status {
+enum class InternetStatus {
     Fetching,
     OK,
     Error,
@@ -346,14 +346,14 @@ enum class Status {
 fun UselessFactCard() {
     val url = "https://uselessfacts.jsph.pl/random.json"
     var info by remember { mutableStateOf(UselessFactJsonModel("", "", "", "", "", "")) }
-    var status by remember { mutableStateOf(Status.Fetching) }
+    var status by remember { mutableStateOf(InternetStatus.Fetching) }
 
     fun updateUselessFact() {
-        status = Status.Fetching
+        status = InternetStatus.Fetching
         url.httpGet().response { result ->
             result.fold(
-                { data -> info = Json.decodeFromString(data.toString(Charset.forName("utf-8"))); status = Status.OK; },
-                { err -> status = Status.Error; println(err) }
+                { data -> info = Json.decodeFromString(data.toString(Charset.forName("utf-8"))); status = InternetStatus.OK; },
+                { err -> status = InternetStatus.Error; println(err) }
             )
         }
     }
@@ -368,10 +368,10 @@ fun UselessFactCard() {
             Divider()
             Spacer(Modifier.padding(4.dp))
             when (status) {
-                Status.Fetching -> {
+                InternetStatus.Fetching -> {
                     CircularProgressIndicator()
                 }
-                Status.OK -> {
+                InternetStatus.OK -> {
                     Text(info.text, fontFamily = FontFamily.Cursive, fontSize = 1.5.em)
                     Text("source: ${info.source} ${info.source_url}", fontStyle = FontStyle.Italic)
                     Button(onClick = ::updateUselessFact) {
@@ -541,64 +541,65 @@ fun mainApp() = application {
             val scaffoldState = rememberScaffoldState()
             var pagination by remember { mutableStateOf(Pages.HOME) }
             val coroutineScope = rememberCoroutineScope()
+            var sideBarVisible by remember {mutableStateOf(false)}
 
             Scaffold(
                 scaffoldState = scaffoldState,
                 modifier = Modifier.clip(RoundedCornerShape(5.dp)), //.border(BorderStroke(2.dp, MaterialTheme.colors.primary))
                 topBar = {
-                    MyMenuBar("Jetpack Compose Demo", windowState, scaffoldState) {
-                        MyMenu("文件") {
-                            MyMenuItem("新建") {
+                    MMenuBar("Jetpack Compose Demo", windowState, {sideBarVisible = !sideBarVisible}) {
+                        MMenu("文件") {
+                            MMenuItem("新建") {
                                 collapseMenu()
                                 JOptionPane.showMessageDialog(ComposeWindow(),"Msg")
                             }
-                            MyMenuItem("打开") {
+                            MMenuItem("打开") {
                                 pagination = Pages.HOME
                             }
                             Divider()
-                            MyMenuItem("退出") {
+                            MMenuItem("退出") {
                                 exitApplication()
                             }
                         }
-                        MyMenu("设置")
+                        MMenu("设置")
                         {
-                            MyMenuItem("编辑") {
+                            MMenuItem("编辑") {
                                 pagination = Pages.ABOUT
                             }
-                            MyMenuItem("首选项") {
+                            MMenuItem("首选项") {
                             }
                         }
-                        MyMenu("帮助")
+                        MMenu("帮助")
                         {
-                            MyMenuItem("帮助") {
+                            MMenuItem("帮助") {
                                 pagination = Pages.ABOUT
                             }
-                            MyMenuItem("关于") {
+                            MMenuItem("关于") {
                                 pagination = Pages.ABOUT
                             }
 
                             var toggledTest by remember { mutableStateOf(false) }
-                            MyMenuToggle("测试",toggledTest) {
+                            MMenuToggle("测试",toggledTest) {
                                 println(it)
                                 toggledTest = !toggledTest
                             }
 
-                            MySubMenu("展开") {
-                                MyMenuItem("1") {
+                            MSubMenu("展开") {
+                                MMenuItem("1") {
                                     println("Hello")
                                 }
-                                MySubMenu("展开") {
-                                    MyMenuItem("3") {
+                                MSubMenu("展开") {
+                                    MMenuItem("3") {
                                         println("Hello")
                                     }
-                                    MyMenuItem("4") {
+                                    MMenuItem("4") {
                                         println("Hello")
                                     }
                                 }
-                                MyMenuItem("3") {
+                                MMenuItem("3") {
                                     println("Hello")
                                 }
-                                MyMenuItem("4") {
+                                MMenuItem("4") {
                                     println("Hello")
                                 }
                             }
@@ -624,7 +625,7 @@ fun mainApp() = application {
                                         content = { Icon(Icons.Default.Home, null) }
                                     )
 
-                                    MyMaterialMenu("文件",) {
+                                    MMaterialMenu("文件",) {
                                         DropdownMenuItem(onClick = { collapse() }) {
                                             Text("新建")
                                         }
@@ -636,7 +637,7 @@ fun mainApp() = application {
                                             Text("退出")
                                         }
                                     }
-                                    MyMaterialMenu("设置")
+                                    MMaterialMenu("设置")
                                     {
                                         DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
                                             Text("编辑")
@@ -645,7 +646,7 @@ fun mainApp() = application {
                                             Text("首选项")
                                         }
                                     }
-                                    MyMaterialMenu("帮助")
+                                    MMaterialMenu("帮助")
                                     {
                                         DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
                                             Text("帮助")
@@ -699,17 +700,20 @@ fun mainApp() = application {
                 },
                 content = {
                     Row {
-                        Box(Modifier.fillMaxHeight().width(32.dp).background(MainColor)) { //侧边栏
-                            Column(Modifier.fillMaxSize(),verticalArrangement = Arrangement.SpaceBetween) {
+                        sideBarVisible && Unit == Box(Modifier.fillMaxHeight().width(40.dp).background(MainColor)) { //侧边栏
+                            Column(Modifier.fillMaxSize(),verticalArrangement = Arrangement.SpaceBetween,horizontalAlignment = Alignment.CenterHorizontally) {
                                 Column {
-                                    Icon(Icons.Default.AccountBox, null)
-                                    Icon(Icons.Default.AccountBox, null)
+                                    Spacer(Modifier.height(10.dp))
+                                    Icon(Icons.Default.Face, null)
+                                    Icon(Icons.Default.Favorite, null)
                                     Icon(Icons.Default.AccountBox, null)
                                 }
 
                                 Column {
                                     Icon(Icons.Default.ExitToApp, null)
+                                    Spacer(Modifier.height(20.dp))
                                 }
+
                             }
                         }
 
@@ -717,6 +721,7 @@ fun mainApp() = application {
                             Pages.HOME -> AppPage()
                             Pages.ABOUT -> AboutPage()
                         }
+
                     }
                 }
             )
