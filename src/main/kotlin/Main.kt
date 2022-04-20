@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -41,8 +42,8 @@ import java.awt.FileDialog
 import java.io.File
 import java.net.URI
 import java.nio.charset.Charset
-import javax.swing.JOptionPane
-import javax.swing.UIManager
+import javax.swing.*
+import javax.swing.UIManager.getLookAndFeel
 
 
 val ThirdColor = Color(0xFFBB86FC)
@@ -175,6 +176,7 @@ fun JvmInfoCard() {
             Text("JVM: ${getInfo("java.vm.name")} ${Runtime.version()} by ${getInfo("java.vm.vendor")} at ${getInfo("java.home")}")
             Text("OS:  ${getInfo("os.name")} ${getInfo("os.arch")} ${getInfo("os.version")}")
             Text("Charset: Default=${Charset.defaultCharset()} File=${getInfo("file.encoding")}")
+            Text("Swing LookAndFeel: ${getLookAndFeel().description}")
         }
     }
 
@@ -443,6 +445,28 @@ fun ListCard() {
 }
 
 @Composable
+fun SwingCard() {
+    CardColumn("Swing") {
+        SwingPanel(
+            background = Color.White,
+            modifier = Modifier.size(270.dp, 90.dp),
+            factory = {
+                JPanel().apply {
+                    layout = BoxLayout(this, BoxLayout.Y_AXIS)
+                    val txt = JTextField("Hello").also(::add)
+                    JButton("Button").apply {
+                        addActionListener {
+                            txt.text = "clicked!"
+                        }
+                    }.also(::add)
+                }
+            }
+        )
+    }
+}
+
+
+@Composable
 fun CardColumn(text: String? = null,content: @Composable () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp).animateContentSize()) {
@@ -477,6 +501,7 @@ fun AppPage() {
         FuelInternetCard()
         AlertDialogCard()
         ListCard()
+        SwingCard()
     }
 }
 
@@ -730,7 +755,7 @@ fun mainApp() = application {
 }
 
 fun main(args :Array<String>) {
-    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
     mainApp()
 }
 
