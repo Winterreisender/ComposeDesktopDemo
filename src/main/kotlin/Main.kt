@@ -640,87 +640,11 @@ fun mainApp() = application {
                         }
 
                     }
-                    /*TopAppBar(modifier = Modifier.height(32.dp)) {
-                        //val coroutineScope = rememberCoroutineScope()
-                        WindowDraggableArea {
-                            Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = {/*coroutineScope.launch {scaffoldState.drawerState.open()}*/},
-                                        content = { Icon(Icons.Default.Home, null) }
-                                    )
-
-                                    MMaterialMenu("文件",) {
-                                        DropdownMenuItem(onClick = { collapse() }) {
-                                            Text("新建")
-                                        }
-                                        DropdownMenuItem(onClick = { collapse(); pagination=Pages.HOME }) {
-                                            Text("打开")
-                                        }
-                                        Divider()
-                                        DropdownMenuItem(onClick = { collapse(); exitProcess(0) }) {
-                                            Text("退出")
-                                        }
-                                    }
-                                    MMaterialMenu("设置")
-                                    {
-                                        DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
-                                            Text("编辑")
-                                        }
-                                        DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
-                                            Text("首选项")
-                                        }
-                                    }
-                                    MMaterialMenu("帮助")
-                                    {
-                                        DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
-                                            Text("帮助")
-                                        }
-                                        DropdownMenuItem(onClick = { collapse(); pagination=Pages.ABOUT }) {
-                                            Text("关于")
-                                        }
-                                    }
-                                }
-
-                                Text("Jetpack Compose Application", maxLines = 1)
-
-                                Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = { windowState.isMinimized = true },
-                                        content = { Icon(Icons.Default.ArrowDropDown, null) },
-                                        modifier = Modifier
-                                    )
-                                    IconButton(
-                                        onClick = { windowState.placement = if (windowState.placement == WindowPlacement.Maximized) WindowPlacement.Floating else WindowPlacement.Maximized },
-                                        content = { Icon(Icons.Default.Add, null) },
-                                        modifier = Modifier
-                                    )
-                                    IconButton(
-                                        onClick = { exitProcess(0) },
-                                        content = { Icon(Icons.Default.Close, null) },
-                                        modifier = Modifier
-                                    )
-                                }
-                            }
-                        }
-                    }*/
                 },
-
                 bottomBar = {
                     // can also use BottomNavigation
                     BottomAppBar(modifier = Modifier.height(18.dp)) {
                         Text(text = "Location: ${windowState.position} Size: ${windowState.size}")
-                    }
-                },
-                /*drawerShape = object : Shape {
-                    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline =
-                        Outline.Rectangle(Rect(0f,32f,256f, 300f))
-
-                },*/
-                drawerContent = {
-                    Column(modifier = Modifier.fillMaxSize().padding(6.dp)) {
-                        Text(text = "主页" ,modifier = Modifier.clickable { pagination = Pages.HOME; coroutineScope.launch { scaffoldState.drawerState.close() } }, fontSize = 1.em)
-                        Text(text = "关于", modifier = Modifier.clickable { pagination = Pages.ABOUT; coroutineScope.launch { scaffoldState.drawerState.close() } }, fontSize = 1.em)
                     }
                 },
                 content = {
